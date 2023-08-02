@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>To-Do</title>
+    <link rel="stylesheet" href="https://unpkg.com/basilcss@1.1.2/basil.css">
+  </head>
+  <style>
+    .handle:hover {
+      cursor: pointer;
+    }
+  </style>
+  <body>
+    <div id="app">
+      <h1>To-Do</h1>
+      <input v-model="newTask.description" type="text" placeholder="New task" />
+      <button class="btn-primary" @click="createTask()">+</button>
+      <ul>
+        <li
+          v-for="(task, index) in tasks"
+          :key="task.id"
+          draggable="true"
+          @dragstart="dragStart($event, index)"
+          @dragover.prevent
+          @drop="drop($event, index)"
+        >
+          <div class="wrapper">
+            <div class="handle">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="#000000"
+                viewBox="0 0 256 256"
+              >
+                <path
+                  d="M72,92A12,12,0,1,1,60,80,12,12,0,0,1,72,92Zm56-12a12,12,0,1,0,12,12A12,12,0,0,0,128,80Zm68,24a12,12,0,1,0-12-12A12,12,0,0,0,196,104ZM60,152a12,12,0,1,0,12,12A12,12,0,0,0,60,152Zm68,0a12,12,0,1,0,12,12A12,12,0,0,0,128,152Zm68,0a12,12,0,1,0,12,12A12,12,0,0,0,196,152Z"
+                ></path>
+              </svg>
+            </div>
+            <p>{{ task.description }}</p>
+            <button @click="deleteTask(index)">Delete</button>
+            <button @click="updateTask(index)">Update</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+      const app = Vue.createApp({
+        data() {
+          return {
+            newTask: { id: "", description: "" },
+            tasks: JSON.parse(localStorage.getItem("tasks")) || [],
+          }
+        },
+        methods: {
+          createTask() {
+            this.newTask.id = Date.now()
+            this.tasks.push({ ...this.newTask })
+            this.newTask.description = ""
+            this.saveTasks()
+          },
+          deleteTask(index) {
+            this.tasks.splice(index, 1)
+            this.saveTasks()
+          },
+          updateTask(index) {
+            const newDescription = prompt("New description:")
+            this.tasks[index].description = newDescription
+            this.saveTasks()
+          },
+          dragStart(event, index) {
+            event.dataTransfer.effectAllowed = "move"
+            event.dataTransfer.setData("text/plain", index)
+          },
+          drop(event, index) {
+            const oldIndex = event.dataTransfer.getData("text/plain")
+            this.tasks.splice(index, 0, this.tasks.splice(oldIndex, 1)[0])
+            this.saveTasks()
+          },
+          saveTasks() {
+            localStorage.setItem("tasks", JSON.stringify(this.tasks))
+          },
+        },
+      })
+      app.mount("#app")
+    </script>
+  </body>
+</html>
