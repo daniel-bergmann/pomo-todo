@@ -14,10 +14,29 @@
       padding: 0;
       margin: 0;
     }
+    .progress {
+      height: 20px;
+      width: 100%;
+      background-color: #f3f3f3;
+      border-radius: 50px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .progress-bar {
+      height: 100%;
+      background-color: #007bff;
+      transition: width 0.5s;
+    }
   </style>
   <body>
     <div class="m-1" id="app">
       <h1>Progress</h1>
+      <div class="progress">
+        <div
+          class="progress-bar"
+          :style="{width: completedTasksPercentage + '%'}"
+        ></div>
+      </div>
       <input
         class="p-1"
         v-model="newTask.description"
@@ -56,9 +75,14 @@
             <button class="btn-primary m-1" @click="updateTask(index)">
               Update
             </button>
+            <button class="btn-primary m-1" @click="completeTask(index)">
+              Complete
+            </button>
           </div>
         </li>
       </ul>
+      <h2>Notebook</h2>
+      <textarea v-model="notebook" rows="10" cols="50"> </textarea>
     </div>
 
     <script src="https://unpkg.com/vue@next"></script>
@@ -68,11 +92,22 @@
           return {
             newTask: { id: "", description: "" },
             tasks: JSON.parse(localStorage.getItem("tasks")) || [],
+            notebook: "",
           }
+        },
+        computed: {
+          completedTasksPercentage() {
+            if (!this.tasks.length) return 0
+            const completedTasks = this.tasks.filter(
+              (task) => task.completed
+            ).length
+            return (completedTasks / this.tasks.length) * 100
+          },
         },
         methods: {
           createTask() {
             this.newTask.id = Date.now()
+            this.newTask.completed = false // add this line
             this.tasks.push({ ...this.newTask })
             this.newTask.description = ""
             this.saveTasks()
@@ -86,6 +121,10 @@
             this.tasks[index].description = newDescription
             this.saveTasks()
           },
+          completeTask(index) {
+            this.tasks[index].completed = !this.tasks[index].completed
+            this.saveTasks()
+          },
           dragStart(event, index) {
             event.dataTransfer.effectAllowed = "move"
             event.dataTransfer.setData("text/plain", index)
@@ -97,7 +136,11 @@
           },
           saveTasks() {
             localStorage.setItem("tasks", JSON.stringify(this.tasks))
+            localStorage.setItem("notebook", this.notebook)
           },
+        },
+        created() {
+          this.notebook = localStorage.getItem("notebook") || ""
         },
       })
       app.mount("#app")
