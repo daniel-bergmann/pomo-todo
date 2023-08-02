@@ -167,10 +167,16 @@
             localStorage.setItem("notebook", this.notebook)
           },
         },
+        watch: {
+          notebook(newValue) {
+            localStorage.setItem("notebook", newValue)
+          },
+        },
         created() {
           this.notebook = localStorage.getItem("notebook") || ""
         },
       })
+
       app.mount("#app")
     </script>
     <a
