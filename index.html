@@ -16,11 +16,16 @@
     }
   </style>
   <body>
-    <div id="app">
-      <h1>To-Do</h1>
-      <input v-model="newTask.description" type="text" placeholder="New task" />
-      <button class="btn-primary" @click="createTask()">+</button>
-      <ul class="m-1">
+    <div class="m-1" id="app">
+      <h1>Progress</h1>
+      <input
+        class="p-1"
+        v-model="newTask.description"
+        type="text"
+        placeholder="New task"
+      />
+      <button class="btn-primary m-1" @click="createTask()">+</button>
+      <ul>
         <li
           class="m-2"
           v-for="(task, index) in tasks"
