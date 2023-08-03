@@ -10,7 +10,6 @@
   </head>
   <style>
     body {
-      /* roboto */
       font-family: "Roboto", sans-serif;
       color: #333;
     }
@@ -24,7 +23,6 @@
     }
     .progress {
       height: 20px;
-      width: 100%;
       background-color: #f3f3f3;
       overflow: hidden;
       margin-bottom: 10px;
@@ -40,20 +38,17 @@
       font-weight: bold;
     }
     textarea {
-      width: 100%;
-      height: 100vh;
       border: none;
       border-top: 1px solid #ccc;
-      padding: 1rem;
       background: #f8f1c1;
     }
   </style>
   <body>
     <div id="app">
       <h1 class="m-2">Progress</h1>
-      <div class="progress">
+      <div class="progress m-l-2 m-r-2">
         <div
-          class="progress-bar m-l-2 m-r-2"
+          class="progress-bar full-width"
           :style="{width: completedTasksPercentage + '%'}"
         ></div>
       </div>
@@ -107,7 +102,8 @@
         </li>
       </ul>
       <h2 class="m-2">Notebook</h2>
-      <textarea v-model="notebook" rows="20"> </textarea>
+      <textarea v-model="notebook" rows="20" class="full-width vh-100 p-1">
+      </textarea>
     </div>
 
     <script src="https://unpkg.com/vue@next"></script>
