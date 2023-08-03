@@ -7,42 +7,45 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>"
     />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        color: #333;
+      }
+      .handle:hover {
+        cursor: pointer;
+      }
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+      h4 {
+        max-width: 500px;
+      }
+      .progress {
+        height: 20px;
+        background-color: #f3f3f3;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+      .progress-bar {
+        height: 100%;
+        background-color: green;
+        transition: width 0.5s;
+      }
+      .completed {
+        text-decoration: line-through;
+        color: green;
+        font-weight: bold;
+      }
+      textarea {
+        border: none;
+        border-top: 1px solid #ccc;
+        background: #f8f1c1;
+      }
+    </style>
   </head>
-  <style>
-    body {
-      font-family: "Roboto", sans-serif;
-      color: #333;
-    }
-    .handle:hover {
-      cursor: pointer;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
-    .progress {
-      height: 20px;
-      background-color: #f3f3f3;
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-    .progress-bar {
-      height: 100%;
-      background-color: green;
-      transition: width 0.5s;
-    }
-    .completed {
-      text-decoration: line-through;
-      color: green;
-      font-weight: bold;
-    }
-    textarea {
-      border: none;
-      border-top: 1px solid #ccc;
-      background: #f8f1c1;
-    }
-  </style>
   <body>
     <div id="app">
       <h1 class="m-2">Progress</h1>
@@ -53,54 +56,138 @@
         ></div>
       </div>
       <p class="m-2">{{ completedTasksPercentageText }}</p>
-      <input
-        class="m-2 p-1"
-        v-model="newTask.description"
-        type="text"
-        placeholder="+ pomo-todo task"
-        @keyup.enter="createTask"
-      />
-      <button class="btn-primary m-1" @click="createTask()">+</button>
-      <ul>
-        <li
-          class="m-2"
-          v-for="(task, index) in tasks"
-          :key="task.id"
-          draggable="true"
-          @dragstart="dragStart($event, index)"
-          @dragover.prevent
-          @drop="drop($event, index)"
-        >
-          <div class="flex-row-justifyLeft-alignCenter">
-            <div class="handle m-1">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                fill="#000000"
-                viewBox="0 0 256 256"
-              >
-                <path
-                  d="M72,92A12,12,0,1,1,60,80,12,12,0,0,1,72,92Zm56-12a12,12,0,1,0,12,12A12,12,0,0,0,128,80Zm68,24a12,12,0,1,0-12-12A12,12,0,0,0,196,104ZM60,152a12,12,0,1,0,12,12A12,12,0,0,0,60,152Zm68,0a12,12,0,1,0,12,12A12,12,0,0,0,128,152Zm68,0a12,12,0,1,0,12,12A12,12,0,0,0,196,152Z"
-                ></path>
-              </svg>
+
+      <main class="flex-col-justifyCenter-alignCenter">
+        <div class="flex-row-justifyCenter-alignCenter">
+          <input
+            class="m-2 p-1"
+            v-model="newTask.description"
+            type="text"
+            placeholder="New day, new task"
+            @keyup.enter="createTask"
+          />
+          <button class="btn-primary m-1 p-1" @click="createTask()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="#000000"
+              viewBox="0 0 256 256"
+            >
+              <path
+                d="M32,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H40A8,8,0,0,1,32,64Zm8,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm104,48H40a8,8,0,0,0,0,16H144a8,8,0,0,0,0-16Zm88,0H216V168a8,8,0,0,0-16,0v16H184a8,8,0,0,0,0,16h16v16a8,8,0,0,0,16,0V200h16a8,8,0,0,0,0-16Z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <ul>
+          <li
+            class="m-2"
+            v-for="(task, index) in tasks"
+            :key="task.id"
+            draggable="true"
+            @dragstart="dragStart($event, index)"
+            @dragover.prevent
+            @drop="drop($event, index)"
+          >
+            <div class="flex-row-justifyLeft-alignCenter">
+              <div class="handle m-1">
+                <ph-list-plus :size="32" />
+              </div>
+              <div v-if="taskBeingUpdated === index">
+                <input
+                  type="text"
+                  v-model="updatedTaskDescription"
+                  class="m-2 p-1 full-width"
+                />
+                <button
+                  class="btn-primary m-r-1 m-t-1"
+                  @click="saveTaskUpdate()"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    fill="#333"
+                    viewBox="0 0 256 256"
+                  >
+                    <path
+                      d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+              <div v-else>
+                <h4 class="m-1" :class="{ completed: task.completed }">
+                  {{ task.description }}
+                </h4>
+                <button
+                  class="btn-primary m-r-1 m-t-1 p-1"
+                  @click="completeTask(index)"
+                >
+                  <span v-if="task.completed">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      fill="#333"
+                      viewBox="0 0 256 256"
+                    >
+                      <path
+                        d="M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11-11.63A80,80,0,1,0,71.43,71.39a3.07,3.07,0,0,1-.26.25L44.59,96H72a8,8,0,0,1,0,16H24a8,8,0,0,1-8-8V56a8,8,0,0,1,16,0V85.8L60.25,60A96,96,0,0,1,224,128Z"
+                      ></path>
+                    </svg>
+                  </span>
+                  <span v-else
+                    ><svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      fill="#333"
+                      viewBox="0 0 256 256"
+                    >
+                      <path
+                        d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"
+                      ></path></svg
+                  ></span>
+                </button>
+                <button
+                  class="btn-primary m-r-1 m-t-1 p-1"
+                  @click="updateTask(index)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    fill="#333"
+                    viewBox="0 0 256 256"
+                  >
+                    <path
+                      d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM51.31,160,136,75.31,152.69,92,68,176.68ZM48,179.31,76.69,208H48Zm48,25.38L79.31,188,164,103.31,180.69,120Zm96-96L147.31,64l24-24L216,84.68Z"
+                    ></path>
+                  </svg>
+                </button>
+                <button
+                  class="btn-primary m-r-1 m-t-1 p-1"
+                  @click="deleteTask(index)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    fill="#333"
+                    viewBox="0 0 256 256"
+                  >
+                    <path
+                      d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
             </div>
-            <h3 :class="{ completed: task.completed }">
-              {{ task.description }}
-            </h3>
-            <button class="btn-primary m-1" @click="deleteTask(index)">
-              Delete
-            </button>
-            <button class="btn-primary m-1" @click="updateTask(index)">
-              Update
-            </button>
-            <button class="btn-primary m-1" @click="completeTask(index)">
-              <span v-if="task.completed">Un-complete</span>
-              <span v-else>Complete</span>
-            </button>
-          </div>
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </main>
       <h2 class="m-2">Notebook</h2>
       <textarea v-model="notebook" rows="20" class="full-width vh-100 p-1">
       </textarea>
@@ -114,6 +201,8 @@
             newTask: { id: "", description: "" },
             tasks: JSON.parse(localStorage.getItem("tasks")) || [],
             notebook: "",
+            taskBeingUpdated: null,
+            updatedTaskDescription: "",
           }
         },
         computed: {
@@ -130,8 +219,12 @@
         },
         methods: {
           createTask() {
+            if (this.newTask.description.trim() === "") {
+              alert("Task cannot be empty")
+              return
+            }
             this.newTask.id = Date.now()
-            this.newTask.completed = false // add this line
+            this.newTask.completed = false
             this.tasks.push({ ...this.newTask })
             this.newTask.description = ""
             this.saveTasks()
@@ -141,8 +234,14 @@
             this.saveTasks()
           },
           updateTask(index) {
-            const newDescription = prompt("New description:")
-            this.tasks[index].description = newDescription
+            this.taskBeingUpdated = index
+            this.updatedTaskDescription = this.tasks[index].description
+          },
+          saveTaskUpdate() {
+            this.tasks[this.taskBeingUpdated].description =
+              this.updatedTaskDescription
+            this.taskBeingUpdated = null
+            this.updatedTaskDescription = ""
             this.saveTasks()
           },
           completeTask(index) {
